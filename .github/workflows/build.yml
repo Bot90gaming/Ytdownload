@@ -1,0 +1,37 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:   # Cho phép sensei bấm nút "Run workflow" để build thủ công
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          python3-pip python3-setuptools git zip unzip openjdk-17-jdk \
+          automake autoconf libtool pkg-config build-essential \
+          cmake ninja-build
+        pip install --upgrade pip
+        pip install buildozer cython
+
+    - name: Build APK
+      run: |
+        buildozer android debug
+
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ytdownload-apk
+        path: bin/*.apk
